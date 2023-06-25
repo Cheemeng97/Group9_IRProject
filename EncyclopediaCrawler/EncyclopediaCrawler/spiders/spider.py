@@ -8,7 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 encyclopediaDefaultUrl = "https://www.encyclopedia.com"
-categories = []
 
 class DiscoverySpider(scrapy.Spider):
     name = "encyclopedia"
@@ -41,27 +40,43 @@ class DiscoverySpider(scrapy.Spider):
             yield response.follow(subLink, callback=self.parse_subSubCategory)
 
     def parse_subSubCategory(self,response):
-        subCategories_div = response.css('ul.no-bullet-list')
+        subSubCategories_div = response.css('ul.no-bullet-list')
 
-        subCategories_links = subCategories_div.css('a::attr(href)').getall()
+        subSubCategories_links = subSubCategories_div.css('a::attr(href)').getall()
 
-        for subLink in subCategories_links:
-            subLink = encyclopediaDefaultUrl + subLink + "/"
-            yield response.follow(subLink, callback=self.parse_contentUrl)
+        for subSubLink in subSubCategories_links:
+            subSubLink = encyclopediaDefaultUrl + subSubLink + "/"
+            # print(subSubLink)
+            yield response.follow(subSubLink, callback=self.parse_subCategory_pages)
 
-    def parse_contentUrl(self,response):
-        contentUrl_div = response.css('ul.no-bullet-list')
+    def parse_subCategory_pages(self,response):
+        # Extract page numbers from the HTML snippet
+        hasPagination = response.css('ul.pager__items js-pager__items').getall() is not None
 
-        contentUrl_links = contentUrl_div.css('a::attr(href)').getall()
+        if hasPagination:
+            pagination_ul = response.css('ul.pager__items js-pager__items').getall()
+            page_numbers = pagination_ul.css('a::attr(href)').getall()
+            for page_number in page_numbers:
+                print(page_number)   
 
-        for contentUrl in contentUrl_links:
-            contentUrl = encyclopediaDefaultUrl + contentUrl + "/"
 
-            # if "earth-and-environment" in subLink:
-            print(contentUrl)
+    # def parse_contentUrl(self,response):
+    #     # Check for pagination links or indicators
+    #     has_pagination = response.css('.pagination-heading').get() is not None
+    #     print(has_pagination)
 
-            #store content url into txt file
-            with open('discoveredUrl.txt', 'a') as f:
-                f.write(contentUrl + "\n")
+        # contentUrl_div = response.css('ul.no-bullet-list')
+
+        # contentUrl_links = contentUrl_div.css('a::attr(href)').getall()
+
+        # for contentUrl in contentUrl_links:
+        #     contentUrl = encyclopediaDefaultUrl + contentUrl + "/"
+
+        #     # if "earth-and-environment" in subLink:
+        #     print(contentUrl)
+
+        #     #store content url into txt file
+        #     with open('discoveredUrl.txt', 'a') as f:
+        #         f.write(contentUrl + "\n")
 
     
