@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 encyclopediaDefaultUrl = "https://www.encyclopedia.com"
 
 class DiscoverySpider(scrapy.Spider):
-    name = "encyclopedia"
+    name = "epCategories"
     start_urls = [encyclopediaDefaultUrl + "/" ]
 
     def parse(self, response):
@@ -25,10 +25,13 @@ class DiscoverySpider(scrapy.Spider):
                 link = encyclopediaDefaultUrl + link
                 if "daily" not in link:
                     link = link + "/"
-            
-            # print(link)
+
             if "references" not in link and "articles" not in link and "daily" not in link: 
                 yield response.follow(link, callback=self.parse_subCategory)
+
+            # if "references" in link:
+            #     print(link)
+                # yield response.follow(link, callback=self.parse_subReference)
 
     def parse_subCategory(self, response):
         subCategories_div = response.css('ul.no-bullet-list')
@@ -39,6 +42,15 @@ class DiscoverySpider(scrapy.Spider):
             subLink = encyclopediaDefaultUrl + subLink + "/"
             yield response.follow(subLink, callback=self.parse_subSubCategory)
 
+    # def parse_subReference(self, response):
+    #     subReferences_div = response.css('ul.no-bullet-list')
+
+    #     subReferences_links = subReferences_div.css('a::attr(href)').getall()
+
+    #     for subReferenceLink in subReferences_links:
+    #         subReferenceLink = encyclopediaDefaultUrl + subReferenceLink + "/"
+    #         yield response.follow(subReferenceLink, callback=self.parse_subSubReference)
+
     def parse_subSubCategory(self,response):
         subSubCategories_div = response.css('ul.no-bullet-list')
 
@@ -47,36 +59,30 @@ class DiscoverySpider(scrapy.Spider):
         for subSubLink in subSubCategories_links:
             subSubLink = encyclopediaDefaultUrl + subSubLink + "/"
             # print(subSubLink)
-            yield response.follow(subSubLink, callback=self.parse_subCategory_pages)
+            yield response.follow(subSubLink, callback=self.parse_subCategory_pages, cb_kwargs={'subSubLink': subSubLink})
 
-    def parse_subCategory_pages(self,response):
+    def parse_subCategory_pages(self,response, subSubLink):
         # Extract page numbers from the HTML snippet
-        hasPagination = response.css('ul.pager__items js-pager__items').getall() is not None
+        hasPagination = response.css('ul.pager__items.js-pager__items').getall() is not None
 
         if hasPagination:
-            pagination_ul = response.css('ul.pager__items js-pager__items').getall()
-            page_numbers = pagination_ul.css('a::attr(href)').getall()
+            pagination_ul = response.css('ul.pager__items.js-pager__items')
+            page_numbers = pagination_ul.css('li.pager__item a::attr(href)').getall()
             for page_number in page_numbers:
-                print(page_number)   
+                modified_url = subSubLink + page_number
+                # print(modified_url)
+                yield response.follow(modified_url, callback=self.parse_contentUrl)
 
+    def parse_contentUrl(self,response):
+        contentUrl_div = response.css('ul.no-bullet-list')
 
-    # def parse_contentUrl(self,response):
-    #     # Check for pagination links or indicators
-    #     has_pagination = response.css('.pagination-heading').get() is not None
-    #     print(has_pagination)
+        contentUrl_links = contentUrl_div.css('a::attr(href)').getall()
 
-        # contentUrl_div = response.css('ul.no-bullet-list')
+        for contentUrl in contentUrl_links:
+            contentUrl = encyclopediaDefaultUrl + contentUrl + "/"
 
-        # contentUrl_links = contentUrl_div.css('a::attr(href)').getall()
-
-        # for contentUrl in contentUrl_links:
-        #     contentUrl = encyclopediaDefaultUrl + contentUrl + "/"
-
-        #     # if "earth-and-environment" in subLink:
-        #     print(contentUrl)
-
-        #     #store content url into txt file
-        #     with open('discoveredUrl.txt', 'a') as f:
-        #         f.write(contentUrl + "\n")
+            #store content url into txt file
+            with open('discoveredUrl.txt', 'a') as f:
+                f.write(contentUrl + "\n")
 
     
