@@ -29,27 +29,21 @@ class DiscoverySpider(scrapy.Spider):
             if "references" not in link and "articles" not in link and "daily" not in link: 
                 yield response.follow(link, callback=self.parse_subCategory)
 
-            # if "references" in link:
-            #     print(link)
-                # yield response.follow(link, callback=self.parse_subReference)
-
     def parse_subCategory(self, response):
+        # pagination = self.check_pagination(response)
+
+        # if pagination:
+        #     print("pagination exists")
+        
+        # else:
         subCategories_div = response.css('ul.no-bullet-list')
 
         subCategories_links = subCategories_div.css('a::attr(href)').getall()
 
         for subLink in subCategories_links:
             subLink = encyclopediaDefaultUrl + subLink + "/"
+            print(subLink)
             yield response.follow(subLink, callback=self.parse_subSubCategory)
-
-    # def parse_subReference(self, response):
-    #     subReferences_div = response.css('ul.no-bullet-list')
-
-    #     subReferences_links = subReferences_div.css('a::attr(href)').getall()
-
-    #     for subReferenceLink in subReferences_links:
-    #         subReferenceLink = encyclopediaDefaultUrl + subReferenceLink + "/"
-    #         yield response.follow(subReferenceLink, callback=self.parse_subSubReference)
 
     def parse_subSubCategory(self,response):
         subSubCategories_div = response.css('ul.no-bullet-list')
@@ -85,4 +79,9 @@ class DiscoverySpider(scrapy.Spider):
             with open('discoveredUrl.txt', 'a') as f:
                 f.write(contentUrl + "\n")
 
+    def check_pagination(self, response):
+        pagination_elements = response.css('ul.pager__items.js-pager__items')
+        return pagination_elements
     
+    # def pagination_existed(self, response):
+
