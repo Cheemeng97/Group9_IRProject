@@ -1,7 +1,7 @@
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
-from EncyclopediaCrawler.EncyclopediaCrawler.spiders.encyclopediaSpider import EncyclopediaSpider
+from EncyclopediaCrawler.spiders.encyclopediaSpider import EncyclopediaSpider
 from collections.abc import MutableMapping
 
 # Run the spider
