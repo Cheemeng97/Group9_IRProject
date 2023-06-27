@@ -11,7 +11,7 @@ class EncyclopediaSpider(CrawlSpider):
     allowed_domains = ['encyclopedia.com']
     start_urls = ['https://www.encyclopedia.com/']
     # custom_settings = {
-    #     'LOG_FILE': 'logs/encyclopediaSpider.log',
+    #     'LOG_FILE': './logs/encyclopediaSpider.log',
     #     'LOG_LEVEL': 'DEBUG'
     # }
 
