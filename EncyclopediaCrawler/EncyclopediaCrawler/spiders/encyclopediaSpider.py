@@ -23,10 +23,10 @@ class EncyclopediaSpider(CrawlSpider):
         soup = BeautifulSoup(response.body, 'html.parser')
 
         title = soup.title.string.strip()
-        print("Title:", title)
+        # print("Title:", title)
 
         content = soup.get_text().strip()
-        print("Content:", content)
+        # print("Content:", content)
 
         # Store data in a dictionary
         data = {
@@ -36,7 +36,19 @@ class EncyclopediaSpider(CrawlSpider):
             # Add more data fields as needed
         }
 
-        # Save data as JSON
-        with open('data.json', 'a', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False)
-            f.write('\n')
+        # Check if the URL exists in data.json
+        if self.url_exists_in_json(response.url):
+            print("URL already exists in data.json. Skipping crawl.")
+        else:
+            # Save data as JSON
+            with open('data.json', 'a', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False)
+                f.write('\n')
+
+    def url_exists_in_json(self, url):
+        with open('data.json', 'r', encoding='utf-8') as f:
+            for line in f:
+                data = json.loads(line)
+                if data['url'] == url:
+                    return True
+        return False
