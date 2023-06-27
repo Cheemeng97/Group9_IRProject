@@ -10,6 +10,14 @@ class EncyclopediaSpider(CrawlSpider):
     name = 'encyclopediaspider'
     allowed_domains = ['encyclopedia.com']
     start_urls = ['https://www.encyclopedia.com/']
+    # custom_settings = {
+    #     'LOG_FILE': 'logs/encyclopediaSpider.log',
+    #     'LOG_LEVEL': 'DEBUG'
+    # }
+    custom_settings = {
+        'LOG_FILE': 'Group9_IRProject/EncyclopediaCrawler/logs/encyclopediaSpider.log',
+        'LOG_LEVEL': 'DEBUG'
+    }
 
     rules = (
         Rule(LinkExtractor(unique=True), callback='parse_item', follow=True),
