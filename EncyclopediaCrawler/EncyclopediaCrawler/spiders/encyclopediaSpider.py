@@ -15,7 +15,7 @@ class EncyclopediaSpider(CrawlSpider):
     #     'LOG_LEVEL': 'DEBUG'
     # }
     custom_settings = {
-        'LOG_FILE': 'Group9_IRProject/EncyclopediaCrawler/logs/encyclopediaSpider.log',
+        'LOG_FILE': './Group9_IRProject/EncyclopediaCrawler/logs/encyclopediaSpider.log',
         'LOG_LEVEL': 'DEBUG'
     }
 
